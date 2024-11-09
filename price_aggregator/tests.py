@@ -42,12 +42,11 @@ class ProductListViewTests(TestCase):
         # Check that the response status code is 200 (OK)
         self.assertEqual(response.status_code, 200)
 
-        # Log response context to check for 'products'
-        print("Response Context:", response.context)
-
         # Check that the response context contains products
         self.assertIn("products", response.context)
-        self.assertGreater(len(response.context["products"]), 0)  # Ensure products are being returned
+        
+        # Ensure that products are being returned
+        self.assertGreater(len(response.context["products"]), 0)
 
         # Check that the products have correct data, using partial URL check
         amazon_product = response.context["products"][0]
@@ -74,9 +73,6 @@ class ProductListViewTests(TestCase):
 
         # Check that the response status code is 200 (OK)
         self.assertEqual(response.status_code, 200)
-
-        # Log response context to check for 'products'
-        print("Response Context:", response.context)
 
         # Check that the response context contains an empty products list
         self.assertIn("products", response.context)
