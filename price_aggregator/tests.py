@@ -39,33 +39,36 @@ class ProductListViewTests(TestCase):
         # Make a GET request with search parameters
         response = self.client.get(self.url, {"search": "SAMSUNG Galaxy S23"})
 
+        # Log the response context for debugging
+        print("Response Context:", response.context)
+
         # Check that the response status code is 200 (OK)
         self.assertEqual(response.status_code, 200)
 
         # Check that the response context contains products
         self.assertIn("products", response.context)
-        
+
         # Ensure that products are being returned
         self.assertGreater(len(response.context["products"]), 0)
 
-        # Check that the products have correct data, using partial URL check
+        # Check for specific products in the response context
         amazon_product = response.context["products"][0]
-        ebay_product = response.context["products"][1] if len(response.context["products"]) > 1 else None
+        ebay_product = response.context["products"][1]
 
-        # Check for the presence of core words in Amazon product title
+        # Check for the presence of core words regardless of extra details
         core_keywords = ["samsung", "galaxy", "s23"]
         for keyword in core_keywords:
-            self.assertIn(keyword, amazon_product["title"].lower())  # Flexible title check
-        self.assertEqual(amazon_product["price"], "$799.99")  # Adjust based on actual mock price
-        self.assertIn("amazon.com", amazon_product["url"])  # Partial URL check
+            self.assertIn(keyword, amazon_product["name"].lower())  # Flexible name check
+        self.assertEqual(amazon_product["price"], 799.99)  # Correct price from mock data
+        self.assertIn("amazon.com", amazon_product["link"])  # Partial URL check
         self.assertEqual(amazon_product["source"], "Amazon")
 
-        # Optional: Check for eBay product (if it exists)
-        if ebay_product:
-            self.assertEqual(ebay_product["title"], "SAMSUNG Galaxy S23 - Brand New")
-            self.assertEqual(ebay_product["sale_price"], 359)
-            self.assertEqual(ebay_product["url"], "https://ebay.com/samsung-galaxy-s23")
-            self.assertEqual(ebay_product["source"], "Ebay")
+        # Check eBay product details
+        for keyword in core_keywords:
+            self.assertIn(keyword, ebay_product["title"].lower())  # Flexible title check
+        self.assertEqual(ebay_product["sale_price"], 359)  # Correct price from mock data
+        self.assertEqual(ebay_product["link"], "https://ebay.com/samsung-galaxy-s23")
+        self.assertEqual(ebay_product["source"], "Ebay")
 
     def test_product_list_view_without_data(self):
         # Make a GET request without search parameters
